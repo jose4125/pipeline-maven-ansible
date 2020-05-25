@@ -1,0 +1,25 @@
+---
+- hosts: all
+  vars:
+    userHub: '{{ userFromJenkins }}'
+    passHub: '{{ pass }}'
+    commit: '{{ imageTag }}'
+
+  tasks:
+  - name: stop current running container
+    command: docker container stop simple-devops-container
+    ignore_errors: yes
+
+  - name: remove stopped container
+    command: docker container rm simple-devops-container
+    ignore_errors: yes
+
+  - name: remove docker image
+    command: docker image rm jose4125/simple-devops-image:{{ commit }}
+    ignore_errors: yes
+
+  - name: pull the image fron the registry
+    command: docker pull jose4125/simple-devops-image:{{ commit }}
+
+  - name: create container using simple-devops-image
+    command: docker run -d --name simple-devops-container -p 8060:8080 jose4125/simple-devops-image:{{ commit }}
